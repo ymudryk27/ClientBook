@@ -1,0 +1,25 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in results %}
+        <tr>
+            <td>{{ client[1] }}</td>
+            <td>{{ client[2] }}</td>
+            <td>{{ client[3] }}</td>
+        </tr>
+        {% endfor %}
+        {% for client in results %}
+        <div class="client">
+            <strong>{{ client[1] }}</strong><br>
+            {{ client[2] }}<br>
+            {{ client[3] }}
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
