@@ -2,6 +2,19 @@ from flask import Flask, render_template, request, redirect, send_file, flash
 import psycopg2
 import csv
 import os
+from urllib.parse import urlparse
+
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+result = urlparse(DATABASE_URL)
+
+conn = psycopg2.connect(
+    dbname=result.path[1:],
+    user=result.username,
+    password=result.password,
+    host=result.hostname,
+    port=result.port
+)
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
