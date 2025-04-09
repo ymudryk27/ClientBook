@@ -1,16 +1,18 @@
 from flask import Flask, render_template, request, redirect, send_file, flash
 import psycopg2
 import csv
+import os
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+
 conn = psycopg2.connect(
-    dbname="clients",
-    user="postgres",
-    password="postgres",
-    host="localhost",
-    port="5432"
+    dbname=os.environ.get("DB_NAME"),
+    user=os.environ.get("DB_USER"),
+    password=os.environ.get("DB_PASSWORD"),
+    host=os.environ.get("DB_HOST"),
+    port=os.environ.get("DB_PORT")
 )
 cur = conn.cursor()
 
