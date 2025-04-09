@@ -1,90 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 
 <head>
   <meta charset="UTF-8">
   <title>ClientBook</title>
   <style>
     body {
-      background-color: #121212;
-      color: #f0f0f0;
+      background-color: #111;
+      color: #fff;
       font-family: Arial, sans-serif;
-      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
     }
 
     h1 {
-      margin-top: 0;
-    }
-
-    input[type="text"] {
-      padding: 8px;
-      width: 250px;
-      margin-right: 10px;
-    }
-
-    button,
-    select {
-      padding: 8px 16px;
-      margin: 4px;
-    }
-
-    .client {
-      margin-top: 15px;
-      padding: 10px;
-      background: #1e1e1e;
-      border-radius: 5px;
-    }
-
-    .actions {
-      margin-top: 20px;
+      font-size: 3em;
+      margin-bottom: 30px;
     }
 
     .lang-switch {
       position: absolute;
       top: 20px;
-      right: 30px;
+      right: 20px;
+    }
+
+    select {
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    form {
+      margin: 10px 0;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 10px 18px;
+      margin: 5px;
+      border: none;
+      background-color: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .clients {
+      width: 100%;
+      max-width: 700px;
+      margin-top: 30px;
+    }
+
+    .client-card {
+      background-color: #222;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
     }
   </style>
-  <script>
-    function dynamicSearch() {
-      const query = document.getElementById("search").value;
-      fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `query=${encodeURIComponent(query)}`
-      })
-        .then(res => res.text())
-        .then(html => {
-          document.open();
-          document.write(html);
-          document.close();
-        });
-    }
-
-  </script>
-  <script>
-    function dynamicSearch() {
-      const query = document.getElementById("search").value;
-      const formData = new URLSearchParams();
-      formData.append("query", query);
-
-      fetch("/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData
-      })
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById("results").innerHTML = html;
-        });
-    }
-  </script>
 </head>
 
 <body>
-
   <div class="lang-switch">
     <form method="GET" action="/">
       <select name="lang" onchange="this.form.submit()">
@@ -97,48 +87,50 @@
 
   <h1>ClientBook</h1>
 
-  <form method="POST" oninput="dynamicSearch()">
-    <input id="search" type="text" name="query" placeholder="Search clients..." value="{{ query }}">
+  <form method="POST">
+    <input type="text" name="query"
+      placeholder="{% if lang == 'ua' %}Пошук клієнтів...{% elif lang == 'pl' %}Szukaj klientów...{% else %}Search clients...{% endif %}">
+    <button type="submit">{% if lang == 'ua' %}Пошук{% elif lang == 'pl' %}Szukaj{% else %}Search{% endif %}</button>
   </form>
-  <div id="results">
+
+  <div>
+    <form method="GET" action="/" style="display:inline;">
+      <input type="hidden" name="action" value="all">
+      <input type="hidden" name="lang" value="{{ lang }}">
+      <button>{% if lang == 'ua' %}Показати всіх{% elif lang == 'pl' %}Pokaż wszystkich{% else %}Show All{% endif
+        %}</button>
+    </form>
+    <form method="GET" action="/" style="display:inline;">
+      <input type="hidden" name="action" value="hide">
+      <input type="hidden" name="lang" value="{{ lang }}">
+      <button>{% if lang == 'ua' %}Сховати всіх{% elif lang == 'pl' %}Ukryj wszystkich{% else %}Hide All{% endif
+        %}</button>
+    </form>
+    <form method="GET" action="/export" style="display:inline;">
+      <button>{% if lang == 'ua' %}Експортувати CSV{% elif lang == 'pl' %}Eksportuj CSV{% else %}Export CSV{% endif
+        %}</button>
+    </form>
+  </div>
+
+  <form method="POST" action="/add">
+    <input type="text" name="name"
+      placeholder="{% if lang == 'ua' %}Ім'я{% elif lang == 'pl' %}Imię{% else %}Name{% endif %}" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="tel" name="phone"
+      placeholder="{% if lang == 'ua' %}Телефон{% elif lang == 'pl' %}Telefon{% else %}Phone{% endif %}">
+    <button type="submit">{% if lang == 'ua' %}Створити нового{% elif lang == 'pl' %}Dodaj klienta{% else %}Add New
+      Client{% endif %}</button>
+  </form>
+
+  <div class="clients">
     {% for client in results %}
-    <div class="client">
+    <div class="client-card">
       <strong>{{ client[1] }}</strong><br>
       {{ client[2] }}<br>
       {{ client[3] }}
     </div>
     {% endfor %}
   </div>
-
-  <div class="actions">
-    <form method="GET" action="/">
-      <input type="hidden" name="action" value="all">
-      <input type="hidden" name="lang" value="{{ lang }}">
-      <button type="submit">{% if lang == 'ua' %}Показати всіх{% elif lang == 'pl' %}Pokaż wszystkich{% else %}Show
-        All{% endif %}</button>
-    </form>
-
-    <form method="GET" action="/export">
-      <button type="submit">{% if lang == 'ua' %}Експортувати CSV{% elif lang == 'pl' %}Eksportuj CSV{% else %}Export
-        CSV{% endif %}</button>
-    </form>
-
-    {% if total_clients > 20 %}
-    <form method="GET" action="/stats">
-      <button type="submit">{% if lang == 'ua' %}Статистика{% elif lang == 'pl' %}Statystyki{% else %}View Statistics{%
-        endif %}</button>
-    </form>
-    {% endif %}
-  </div>
-
-  {% for client in results %}
-  <div class="client">
-    <strong>{{ client[1] }}</strong><br>
-    {{ client[2] }}<br>
-    {{ client[3] }}
-  </div>
-  {% endfor %}
-
 </body>
 
 </html>
