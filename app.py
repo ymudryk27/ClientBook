@@ -1,16 +1,26 @@
 from flask import Flask, render_template, request, redirect, send_file, flash
+from dotenv import load_dotenv
+import os
 import psycopg2
 import csv
+from urllib.parse import urlparse
 
-app = Flask(__name__)
+app = Flask(__name__)  # ← ОЦЕ ДОДАЙ
 app.secret_key = "secret-key"
 
+load_dotenv()
+
+
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+result = urlparse(DATABASE_URL)
+
 conn = psycopg2.connect(
-    dbname="clients",
-    user="postgres",
-    password="postgres",
-    host="localhost",
-    port="5432"
+    dbname=result.path[1:],
+    user=result.username,
+    password=result.password,
+    host=result.hostname,
+    port=result.port
 )
 
 cur = conn.cursor()
